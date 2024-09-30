@@ -1,0 +1,10 @@
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+  InstanceType:
+    Type: String
+    Default: t2.small
+  DBPassword:
+    Type: String
+    Default: "StageDBPassword456!"
