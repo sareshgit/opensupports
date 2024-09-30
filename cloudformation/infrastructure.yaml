@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Infrastructure for OpenSupports
+
+Parameters:
+  Environment:
+    Type: String
+    Description: Deployment Environment
+
+  InstanceType:
+    Type: String
+    Description: EC2 instance type
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: Database password
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  SubnetPublic:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+
+  SubnetPrivate:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub "opensupports-${Environment}-db"
+      AllocatedStorage: 20
+      DBInstanceClass: !Ref InstanceType
+      Engine: mysql
+      MasterUsername: admin
+      MasterUserPassword: !Ref DBPassword
+      VPCSecurityGroups: [!Ref DBSecurityGroup]
+
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS security group
+      VpcId: !Ref VPC
+
+  ApplicationInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: ami-xxxxxxxx  # Replace with your AMI ID
+      SecurityGroupIds: [!Ref AppSecurityGroup]
+      SubnetId: !Ref SubnetPrivate
+      Tags:
+        - Key: Name
+          Value: !Sub "opensupports-${Environment}-app"
+
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: App security group
+      VpcId: !Ref VPC
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "opensupports-${Environment}-static-files"
+
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/opensupports/${Environment}"
+
+Outputs:
+  ApplicationURL:
+    Description: URL for the OpenSupports application
+    Value: !Sub "http://${ApplicationInstance.PublicIp}"
