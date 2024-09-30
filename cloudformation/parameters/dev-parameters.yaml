@@ -1,0 +1,10 @@
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  InstanceType:
+    Type: String
+    Default: t2.micro
+  DBPassword:
+    Type: String
+    Default: "DevDBPassword123!"
