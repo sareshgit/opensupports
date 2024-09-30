@@ -1,0 +1,10 @@
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+  InstanceType:
+    Type: String
+    Default: t3.medium
+  DBPassword:
+    Type: String
+    Default: "ProdDBPassword789!"
