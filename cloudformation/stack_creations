@@ -1,0 +1,11 @@
+#Deploy Development Stack
+aws cloudformation create-stack --stack-name opensupports-dev --template-body file://cloudformation/infrastructure.yaml --parameters file://cloudformation/parameters/dev-parameters.yaml
+
+#Deploy Staging Stack
+aws cloudformation create-stack --stack-name opensupports-staging --template-body file://cloudformation/infrastructure.yaml --parameters file://cloudformation/parameters/stage-parameters.yaml
+
+#Deploy Production Stack
+aws cloudformation create-stack --stack-name opensupports-prod --template-body file://cloudformation/infrastructure.yaml --parameters file://cloudformation/parameters/prod-parameters.yaml
+
+#Deploy CI/CD Pipeline
+aws cloudformation create-stack --stack-name opensupports-pipeline-dev --template-body file://cloudformation/cicd-pipeline.yaml --parameters ParameterKey=SourceRepository,ParameterValue=<YourRepositoryName> ParameterKey=Environment,ParameterValue=dev
